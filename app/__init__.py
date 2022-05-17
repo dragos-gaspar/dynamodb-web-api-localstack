@@ -9,8 +9,6 @@ def create_app() -> Flask:
     app.config.from_mapping(SECRET_KEY='secret')
     app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 
-    db.lazy_init()
-
     app.register_blueprint(bp)
 
     return app

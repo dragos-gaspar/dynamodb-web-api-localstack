@@ -1,4 +1,3 @@
-import json
 import os
 from typing import Any
 
@@ -72,11 +71,6 @@ def construct_update_syntax(method: str, fields: dict):
 
 class DynamodbClient:
     def __init__(self):
-        self.init = False
-        self.dynamo = None
-        self.schema = None
-
-    def lazy_init(self):
         print("Initializing dynamodb client...")
 
         try:
