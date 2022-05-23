@@ -5,10 +5,25 @@ schema = [
             {"AttributeName": "Artist", "KeyType": "HASH"},
             {"AttributeName": "SongTitle", "KeyType": "RANGE"},
         ],
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexName": "PublisherIndex",
+                "KeySchema": [
+                    {"AttributeName": "Publisher", "KeyType": "HASH"},
+                    {"AttributeName": "CopiesSold", "KeyType": "SORT"}
+                ],
+                "Projection": {
+                    "ProjectionType": "ALL"
+                },
+                "ProvisionedThroughput": {"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
+            }
+        ],
         "AttributeDefinitions": [
             {"AttributeName": "Artist", "AttributeType": "S"},
             {"AttributeName": "SongTitle", "AttributeType": "S"},
+            {"AttributeName": "Publisher", "AttributeType": "S"},
+            {"AttributeName": "CopiesSold", "AttributeType": "N"},
         ],
-        "ProvisionedThroughput": {"ReadCapacityUnits": 10, "WriteCapacityUnits": 10},
+        "ProvisionedThroughput": {"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
     }
 ]
