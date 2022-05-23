@@ -27,7 +27,7 @@ def print_table(table: str):
 def insert(table: str):
     data = request.json
     db.insert(table, data)
-    return jsonify(f"Inserted item in table {table}.")
+    return jsonify(f"Inserted item into table {table}.")
 
 
 @bp.route("/query/<table>", methods=["GET"])
