@@ -1,6 +1,5 @@
 from flask import Flask
 
-from app.database import db
 from app.blueprints import bp
 
 
