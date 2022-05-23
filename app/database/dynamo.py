@@ -46,7 +46,7 @@ def convert_to_dot_notation(obj: Any, parent: str = '') -> dict:
     elif isinstance(obj, list):
         out = {}
         for i in range(len(obj)):
-            out.update(convert_to_dot_notation(obj[i], parent + separator + str(i)))
+            out.update(convert_to_dot_notation(obj[i], parent + f"[{str(i)}]"))
     else:
         return {parent: obj}
 
@@ -93,6 +93,13 @@ class DynamodbClient:
         except Exception as error:
             print(f'ERROR: {type(error)} {error}')
 
+    def check_if_table_exists(self, table_name):
+        try:
+            self.dynamo.meta.client.describe_table(TableName=table_name)
+            return True
+        except self.dynamo.meta.client.exceptions.ResourceNotFoundException:
+            return False
+
     def get_tables_names(self):
         table_names = {"tables": [table.name for table in list(self.dynamo.tables.all())]}
         return table_names
@@ -119,16 +126,13 @@ class DynamodbClient:
         table.put_item(Item=item)
 
     def query_table(self, table_name: str, query: dict):
-        try:
-            self.dynamo.meta.client.describe_table(TableName=table_name)
-        except self.dynamo.meta.client.exceptions.ResourceNotFoundException:
-            # return error
-            return
+        if not self.check_if_table_exists(table_name):
+            return f"No such table {table_name}"
 
         table = self.dynamo.Table(table_name)
         response = table.get_item(Key=query)
 
-        return response["Item"]
+        return response.get("Item")
 
     def update_entry(self, table_name: str, query: dict):
         try:
@@ -150,8 +154,7 @@ class DynamodbClient:
             del updates[k]
 
         # Construct API update syntax
-        updates_dot_notation = convert_to_dot_notation(updates)
-        update_expression, expression_attribute_values = construct_update_syntax('set', updates_dot_notation)
+        update_expression, expression_attribute_values = construct_update_syntax('set', updates)
 
         response = table.update_item(
             Key=keys,
