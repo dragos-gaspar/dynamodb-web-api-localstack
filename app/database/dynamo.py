@@ -5,6 +5,14 @@ from botocore.exceptions import ClientError
 from localstack_client import session as boto3
 
 
+OP_MAP = {
+    'lt': '<',
+    'lte': '<=',
+    'gt': '>',
+    'gte': '>='
+}
+
+
 def get_localstack_resource(service: str) -> Any:
     """
     Get a localstack-client resource using the endpoint
@@ -67,6 +75,20 @@ def construct_update_syntax(method: str, fields: dict):
         expression_attribute_values.update({f':{i}': fields[path]})
 
     return update_expression, expression_attribute_values
+
+
+def construct_query_syntax(method: str, fields: dict):
+
+    keys = list(fields.keys())
+    vals = list(fields.values())
+
+    key_expression = f'{keys[0]} = :0 AND {keys[1]} {OP_MAP[method]} :1'
+    expression_attribute_values = {
+        ':0': vals[0],
+        ':1': vals[1]
+    }
+
+    return key_expression, expression_attribute_values
 
 
 class DynamodbClient:
@@ -133,6 +155,38 @@ class DynamodbClient:
         response = table.get_item(Key=query)
 
         return response.get("Item")
+
+    def query_gsi(self, table_name: str, query: dict, cond: str):
+        if not self.check_if_table_exists(table_name):
+            return f"No such table {table_name}"
+
+        table = self.dynamo.Table(table_name)
+
+        key_expression, expression_attribute_values = construct_query_syntax(cond, query)
+
+        response = table.query(
+            IndexName='PublisherIndex',
+            KeyConditionExpression=key_expression,
+            ExpressionAttributeValues=expression_attribute_values
+        )
+
+        return response.get("Items")
+
+    def query_lsi(self, table_name: str, query: dict, cond: str):
+        if not self.check_if_table_exists(table_name):
+            return f"No such table {table_name}"
+
+        table = self.dynamo.Table(table_name)
+
+        key_expression, expression_attribute_values = construct_query_syntax(cond, query)
+
+        response = table.query(
+            IndexName='ArtistSoldIndex',
+            KeyConditionExpression=key_expression,
+            ExpressionAttributeValues=expression_attribute_values
+        )
+
+        return response.get("Items")
 
     def update_entry(self, table_name: str, query: dict):
         if not self.check_if_table_exists(table_name):

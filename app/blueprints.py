@@ -37,11 +37,25 @@ def query_table(table: str):
     return jsonify(response)
 
 
+@bp.route("/query_gsi/<table>/<cond>", methods=["GET"])
+def query_gsi(table: str, cond: str):
+    query = request.json
+    response = db.query_gsi(table, query, cond)
+    return jsonify(response)
+
+
+@bp.route("/query_lsi/<table>/<cond>", methods=["GET"])
+def query_lsi(table: str, cond: str):
+    query = request.json
+    response = db.query_lsi(table, query, cond)
+    return jsonify(response)
+
+
 @bp.route("/update/<table>", methods=["PATCH"])
 def update_entry(table: str):
     query = request.json
     response = db.update_entry(table, query)
-    return jsonify()
+    return jsonify(response)
 
 
 @bp.route("/delete/<table>", methods=["DELETE"])
