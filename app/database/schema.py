@@ -18,6 +18,18 @@ schema = [
                 "ProvisionedThroughput": {"ReadCapacityUnits": 1, "WriteCapacityUnits": 1},
             }
         ],
+        "LocalSecondaryIndexes": [
+            {
+                'IndexName': "ArtistSoldIndex",
+                'KeySchema': [
+                    {'AttributeName': 'Artist', 'KeyType': 'HASH'},
+                    {'AttributeName': 'CopiesSold', 'KeyType': 'RANGE'},
+                ],
+                "Projection": {
+                    "ProjectionType": "ALL"
+                },
+            }
+        ],
         "AttributeDefinitions": [
             {"AttributeName": "Artist", "AttributeType": "S"},
             {"AttributeName": "SongTitle", "AttributeType": "S"},
