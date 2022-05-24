@@ -41,7 +41,7 @@ def query_table(table: str):
 def update_entry(table: str):
     query = request.json
     response = db.update_entry(table, query)
-    return jsonify(f"Updated {response['Attributes']}")
+    return jsonify()
 
 
 @bp.route("/delete/<table>", methods=["DELETE"])

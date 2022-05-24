@@ -135,11 +135,8 @@ class DynamodbClient:
         return response.get("Item")
 
     def update_entry(self, table_name: str, query: dict):
-        try:
-            self.dynamo.meta.client.describe_table(TableName=table_name)
-        except self.dynamo.meta.client.exceptions.ResourceNotFoundException:
-            # return error
-            return
+        if not self.check_if_table_exists(table_name):
+            return f"No such table {table_name}"
 
         table = self.dynamo.Table(table_name)
 
@@ -163,7 +160,7 @@ class DynamodbClient:
             ReturnValues="UPDATED_NEW"
         )
 
-        return response
+        return f"Updated {response['Attributes']}"
 
     def delete_entry(self, table_name: str, query: dict):
         try:
